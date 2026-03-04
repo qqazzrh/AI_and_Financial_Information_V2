@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"/c/Users/teja0/OneDrive/Desktop/LMS/AI_and_Financial_Information/.venv/Scripts/pip\" install pyarrow)",
+      "Read(//c/Users/teja0/Downloads/**)",
+      "Bash(python -c:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pip show:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(python collect.py:*)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\teja0\\OneDrive\\Desktop\\LMS\\AI_and_Financial_Information\\penrs"
+    ]
+  }
+}

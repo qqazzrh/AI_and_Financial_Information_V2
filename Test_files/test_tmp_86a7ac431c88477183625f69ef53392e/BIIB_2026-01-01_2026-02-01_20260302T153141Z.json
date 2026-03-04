@@ -1,0 +1,54 @@
+{
+  "ticker": "BIIB",
+  "date_from": "2026-01-01",
+  "date_to": "2026-02-01",
+  "generated_at": "2026-03-02T15:31:41.618058+00:00",
+  "worker_results": [
+    {
+      "status": "error",
+      "worker": {
+        "name": "FailWorker",
+        "weight": 1.0,
+        "signal_density": 0.6
+      },
+      "ticker": "BIIB",
+      "date_from": "2026-01-01",
+      "date_to": "2026-02-01",
+      "error": "FailWorker exploded"
+    },
+    {
+      "status": "available",
+      "ticker": "BIIB",
+      "date_from": "2026-01-01",
+      "date_to": "2026-02-01",
+      "worker": {
+        "name": "GoodWorker",
+        "weight": 1.0,
+        "signal_density": 0.6
+      },
+      "result": {
+        "score": 0.55,
+        "summary": "GoodWorker summary"
+      }
+    }
+  ],
+  "arbiter": {
+    "status": "available",
+    "worker_scores": [],
+    "weighted_score": 0.33,
+    "contradictions": []
+  },
+  "master": {
+    "status": "available",
+    "model": "programmatic_master_v1",
+    "ticker": "BIIB",
+    "date_range": {
+      "from": "2026-01-01",
+      "to": "2026-02-01"
+    },
+    "final_score": 0.33,
+    "available_worker_count": 1,
+    "total_worker_count": 2
+  },
+  "report_path": "C:\\Users\\teja0\\OneDrive\\Desktop\\LMS\\AI_and_Financial_Information\\Test_files\\test_tmp_86a7ac431c88477183625f69ef53392e\\BIIB_2026-01-01_2026-02-01_20260302T153141Z.json"
+}

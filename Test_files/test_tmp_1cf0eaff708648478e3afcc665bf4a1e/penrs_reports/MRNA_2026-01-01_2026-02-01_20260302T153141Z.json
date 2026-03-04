@@ -1,0 +1,49 @@
+{
+  "ticker": "MRNA",
+  "date_from": "2026-01-01",
+  "date_to": "2026-02-01",
+  "generated_at": "2026-03-02T15:31:41.605731+00:00",
+  "worker_results": [
+    {
+      "status": "available",
+      "ticker": "MRNA",
+      "date_from": "2026-01-01",
+      "date_to": "2026-02-01",
+      "worker": {
+        "name": "W1",
+        "weight": 1.0,
+        "signal_density": 0.7
+      },
+      "result": {
+        "score": 0.4,
+        "summary": "W1 summary"
+      }
+    },
+    {
+      "status": "available",
+      "ticker": "MRNA",
+      "date_from": "2026-01-01",
+      "date_to": "2026-02-01",
+      "worker": {
+        "name": "W2",
+        "weight": 1.3,
+        "signal_density": 0.8
+      },
+      "result": {
+        "score": 0.2,
+        "summary": "W2 summary"
+      }
+    }
+  ],
+  "arbiter": {
+    "status": "available",
+    "worker_scores": [],
+    "weighted_score": 0.33,
+    "contradictions": []
+  },
+  "master": {
+    "status": "available",
+    "final_score": 0.33
+  },
+  "report_path": "C:\\Users\\teja0\\OneDrive\\Desktop\\LMS\\AI_and_Financial_Information\\Test_files\\test_tmp_1cf0eaff708648478e3afcc665bf4a1e\\penrs_reports\\MRNA_2026-01-01_2026-02-01_20260302T153141Z.json"
+}
