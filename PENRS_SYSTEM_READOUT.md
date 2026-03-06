@@ -1,5 +1,5 @@
 # PENRS System Readout
-**Last Updated:** 2026-03-04
+**Last Updated:** 2026-03-06
 **Consolidation Phase:** Post Step 9 (Phase 4 — Clean Up complete)
 **Architecture:** 3-notebook + 1 shared utility module
 
@@ -11,11 +11,11 @@ PENRS is a multi-agent financial intelligence pipeline for analyzing publicly tr
 
 **Architecture summary:** Data Layer → Worker Agents → Arbiter → Master → JSON Report on disk.
 
-**Current state:** The complete infrastructure layer is implemented and tested. Real API fetchers and real LLM calls are the remaining work — the plumbing is done, the water isn't connected yet.
+**Current state:** Core infrastructure is implemented, and Specs 1-3 in `specs.md` are complete. Execution is currently paused at Spec 4 by operator request (Claude usage-limit wait).
 
 ---
 
-## Repository File Inventory (Post Step 9)
+## Repository File Inventory (Post Step 9 + Spec 1-3 Updates)
 
 ```
 AI_and_Financial_Information/
@@ -23,22 +23,82 @@ AI_and_Financial_Information/
 ├── utils.py                 # Consolidated utility module: Cache + HTTP + Rate Limit + Router
 ├── worker_nodes.ipynb       # PENRSWorker base class, truncation, JSON parsing
 ├── orchestrator.ipynb       # ArbiterAgent, MasterAgent, PENRSReport, run_penrs()
-├── tests.ipynb              # Full test suite (38 test functions, 8 sections)
+├── tests.ipynb              # Notebook-oriented test harness
+├── tests/                   # Canonical unit/integration test package used by gate
+│   ├── unit/
+│   ├── integration/
+│   └── test_support.py
 ├── implementation_plan.md   # Sequential numbered step checklist with status markers
 ├── specs.md                 # Architecture and original product specifications
 ├── PENRS_SYSTEM_READOUT.md  # This file
 ├── .env.example             # Documented environment variable template
 ├── pytest.ini               # Pytest config (addopts = -v --tb=short)
 ├── prompt.md                # System prompt / original project brief
-├── run_loop.sh              # Shell: run pipeline in a loop
 ├── run_loop_codex.sh        # Shell: codex variant of above
+├── continuation_prompt.md   # Handoff context for no-memory Codex sessions
 ├── Test_files/              # Ephemeral test artifacts (temp dirs created by cache/pipeline tests)
-└── .penrs_cache/            # Cache directory (auto-created on utils.py import)
+├── .penrs_cache/            # Cache directory (auto-created on utils.py import)
+├── .factory_tmp/            # Autonomous loop scratch/state files
+└── .test_artifacts/         # Isolated temp output for test execution
 ```
 
 **Deleted in Step 9** (logic now lives in notebooks / utils.py):
 - Source: `penrs_worker.py`, `penrs_arbiter.py`, `penrs_pipeline.py`, `penrs_cache.py`, `penrs_http.py`, `penrs_rate_limit.py`, `penrs_router.py`
 - Tests: `test_arbiter.py`, `test_cache.py`, `test_pipeline.py`, `test_rate_limit.py`, `test_router.py`, `test_step1.py`, `test_step2.py`, `test_worker.py`
+
+---
+
+## 2026-03-06 Addendum (Spec 1-3 Execution)
+
+This addendum reflects the autonomous factory execution and codebase state after completing Specs 1-3.
+
+### Spec Status
+
+- `Spec 1`: complete
+- `Spec 2`: complete
+- `Spec 3`: complete
+- `Spec 4`: not complete (next target)
+- `Spec 5`: not complete
+
+### What Changed
+
+1. Spec 1 (Ingestion + Immutable Cache)
+- `penrs_mcp_server.py` now includes MCP fetchers for Alpha Vantage, SEC EDGAR, openFDA, and PubMed with cache bindings.
+- Unit and integration coverage added under `tests/unit/test_penrs_mcp_server_fetchers.py` and `tests/integration/test_penrs_mcp_server_cache_integration.py`.
+
+2. Spec 2 (Strict Worker JSON Schema)
+- `worker_nodes.ipynb` now enforces strict score/thesis/evidence schema behavior in `parse_json_response()`.
+- Prompt schema constraints were added in `PENRSWorker.build_prompt()`.
+- LLM invocation supports Anthropic-style `system="Respond only in valid JSON."` routing.
+- Spec 2 validation tests were added in:
+  - `tests/unit/test_worker_nodes_spec2_unit.py`
+  - `tests/integration/test_worker_nodes_spec2_integration.py`
+
+3. Spec 3 (Hallucination Destruction + Arbiter/Report Evidence)
+- `PENRSWorker.run()` now prunes non-verbatim evidence quotes and neutralizes score when hallucinated evidence is detected.
+- `ArbiterAgent._validate_worker_result()` now rejects non-neutral scores without evidence.
+- `MasterAgent.synthesize()` now maps evidence nodes with derived `cache_key`.
+- `PENRSReport` now includes top-level `evidence`.
+- `run_penrs()` hoists `master.evidence` to top-level report payload for persistence.
+- Spec 3 coverage added in:
+  - `tests/unit/test_spec3_quote_validation_unit.py`
+  - `tests/integration/test_spec3_arbiter_master_integration.py`
+
+### Autonomous Loop Runtime Changes
+
+- `run_loop_codex.sh` is the current orchestrator entrypoint.
+- Claude calls are wrapped with timeout protection.
+- Gate runner fallback order is:
+  1. `pytest -v`
+  2. `python3 -m pytest -v`
+  3. `python3 -m unittest discover -s tests -p 'test_*.py' -v`
+- Scratch/test temp output is isolated under `.factory_tmp/` and `.test_artifacts/`.
+
+### Current Pause Context
+
+- Loop was intentionally stopped after Spec 3 completion and at the start of Spec 4.
+- Resume command:
+  - `chmod +x run_loop_codex.sh && ./run_loop_codex.sh`
 
 ---
 
