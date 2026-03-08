@@ -16,7 +16,7 @@ NB_PATH = os.path.join(os.path.dirname(__file__), "notebooks", "01_biotech_discl
 
 def extract_code_cells(nb_path: str) -> list[str]:
     """Extract source code from all code cells in the notebook."""
-    with open(nb_path) as f:
+    with open(nb_path, encoding="utf-8") as f:
         nb = json.load(f)
     sources = []
     for cell in nb["cells"]:
@@ -53,13 +53,13 @@ def main():
     print("=" * 70)
 
     # Retrieval summary
-    print("\n── RETRIEVAL ──")
+    print("\n-- RETRIEVAL --")
     for doc_type, rr in result["retrieval_results"].items():
         candidate_title = rr.selected_candidate.title[:80] if rr.selected_candidate else "None"
         print(f"  {doc_type.value:30s} | {rr.status.value:20s} | {candidate_title}")
 
     # Worker summary
-    print("\n── WORKER ANALYSIS ──")
+    print("\n-- WORKER ANALYSIS --")
     for doc_type, wo in result["worker_outputs"].items():
         sentiment = wo.sentiment.label.value if wo.sentiment else "N/A"
         confidence = f"{wo.confidence:.2f}" if wo.confidence is not None else "N/A"
@@ -67,7 +67,7 @@ def main():
 
     # Arbiter summary
     ao = result["arbiter_output"]
-    print("\n── ARBITER ──")
+    print("\n-- ARBITER --")
     print(f"  Status:        {ao.status.value}")
     print(f"  Sentiment:     {ao.sentiment.label.value if ao.sentiment else 'N/A'}")
     print(f"  Conflicts:     {len(ao.conflicting_signals)}")
@@ -75,7 +75,7 @@ def main():
 
     # Final payload summary
     fp = result["final_payload"]
-    print("\n── FINAL UI PAYLOAD ──")
+    print("\n-- FINAL UI PAYLOAD --")
     print(f"  Status:           {fp.status.value}")
     print(f"  Overall Sentiment: {fp.overall_sentiment_label.value if fp.overall_sentiment_label else 'N/A'}")
     print(f"  Disclosures:      {len(fp.disclosures)}")
