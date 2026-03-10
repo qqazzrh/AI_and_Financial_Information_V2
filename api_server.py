@@ -13,9 +13,7 @@ Usage:
 
 import asyncio
 import json
-import logging
 import os
-import sys
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -27,70 +25,22 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from db import init_databases, get_user_history
+from pipeline import (
+    run_full_pipeline as _run_full_pipeline,
+    run_tiered_pipeline as _run_tiered_pipeline,
+    resolve_company_from_ticker as _resolve_company,
+    set_database_handles as _set_database_handles,
+    TieredPipelineRequest as _TieredPipelineRequest,
+    PIPELINE_CONFIG as _PIPELINE_CONFIG,
+    GLOBAL_CONFIG as _GLOBAL_CONFIG,
+)
 
 load_dotenv()
 
-# ── Notebook loader ──────────────────────────────────────────────────────────
-
-NB_PATH = os.path.join(os.path.dirname(__file__), "notebooks", "01_biotech_disclosure_pipeline.ipynb")
-
-def _load_notebook_namespace() -> dict[str, Any]:
-    """Execute all code cells into a shared namespace."""
-    with open(NB_PATH) as f:
-        nb = json.load(f)
-
-    sources: list[str] = []
-    code_cell_count = 0
-    for cell in nb["cells"]:
-        if cell["cell_type"] != "code":
-            continue
-        source = "".join(cell["source"])
-        code_cell_count += 1
-        sources.append(source)
-
-    ns: dict[str, Any] = {"__name__": "__main__", "__builtins__": __builtins__}
-
-    # Silence stdout (cell-level print/json.dumps) and noisy loggers during exec
-    _real_stdout = sys.stdout
-    _devnull = open(os.devnull, "w")
-    sys.stdout = _devnull
-    _pipeline_logger = logging.getLogger("biotech_disclosure_pipeline")
-    _saved_level = _pipeline_logger.level
-    _pipeline_logger.setLevel(logging.WARNING)
-
-    try:
-        for i, code in enumerate(sources):
-            try:
-                exec(compile(code, f"<cell_{i}>", "exec"), ns)
-            except Exception as e:
-                print(f"  [cell {i}] Warning: {type(e).__name__}: {e}", file=sys.stderr)
-    finally:
-        sys.stdout = _real_stdout
-        _devnull.close()
-        _pipeline_logger.setLevel(_saved_level)
-
-    print(f"Notebook loaded: {code_cell_count} code cells executed")
-    return ns
-
-
-print("Loading notebook namespace (this may take a moment)...")
-NS = _load_notebook_namespace()
-
-# Extract the functions we need
-_run_full_pipeline = NS["run_full_pipeline"]
-_run_tiered_pipeline = NS["run_tiered_pipeline"]
-_resolve_company = NS["resolve_company_from_ticker"]
-_set_database_handles = NS["set_database_handles"]
-_TieredPipelineRequest = NS["TieredPipelineRequest"]
-_PIPELINE_CONFIG = NS["PIPELINE_CONFIG"]
-_GLOBAL_CONFIG = NS["GLOBAL_CONFIG"]
-
 # ── Database initialization ─────────────────────────────────────────────────
 
-print("Initializing databases...")
 _sqlite_conn, _lance_db = init_databases()
 _set_database_handles(_sqlite_conn, _lance_db)
-print("Databases ready.")
 
 # ── FastAPI app ──────────────────────────────────────────────────────────────
 

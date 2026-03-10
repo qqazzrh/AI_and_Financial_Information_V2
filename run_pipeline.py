@@ -1,49 +1,23 @@
 #!/usr/bin/env python3
 """Execute the full biotech disclosure pipeline for a given ticker.
 
-This script loads all notebook code cells to initialize the pipeline,
-then calls run_full_pipeline() for the specified ticker.
+Usage:
+    python run_pipeline.py BIIB
 """
 import json
 import sys
 import os
 
-# Ensure .env is loaded
 from dotenv import load_dotenv
 load_dotenv()
 
-NB_PATH = os.path.join(os.path.dirname(__file__), "notebooks", "01_biotech_disclosure_pipeline.ipynb")
-
-def extract_code_cells(nb_path: str) -> list[str]:
-    """Extract source code from all code cells in the notebook."""
-    with open(nb_path, encoding="utf-8") as f:
-        nb = json.load(f)
-    sources = []
-    for cell in nb["cells"]:
-        if cell["cell_type"] == "code":
-            source = "".join(cell["source"])
-            sources.append(source)
-    return sources
+from pipeline import run_full_pipeline
 
 
 def main():
     ticker = sys.argv[1] if len(sys.argv) > 1 else "BIIB"
-    print(f"=== Loading pipeline from notebook ({NB_PATH}) ===")
+    print(f"=== Running run_full_pipeline('{ticker}') ===\n")
 
-    code_cells = extract_code_cells(NB_PATH)
-
-    # Build a shared namespace and execute all cells to load definitions
-    ns = {"__name__": "__main__", "__builtins__": __builtins__}
-
-    for i, code in enumerate(code_cells):
-        try:
-            exec(compile(code, f"<cell_{i}>", "exec"), ns)
-        except Exception as e:
-            print(f"  [cell {i}] Warning: {type(e).__name__}: {e}")
-
-    print(f"\n=== Pipeline loaded. Running run_full_pipeline('{ticker}') ===\n")
-
-    run_full_pipeline = ns["run_full_pipeline"]
     result = run_full_pipeline(ticker)
 
     # Print structured summary
