@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """FastAPI server for the biotech disclosure pipeline.
 
-Loads the notebook namespace once at startup and exposes async endpoints
-for ticker lookup, pipeline execution (with background polling), and
-cached result retrieval.
+Uses the refactored Python pipeline package directly (no notebook execution)
+and exposes async endpoints for ticker lookup, tiered pipeline execution
+(with background polling), and cached result retrieval.
 
 Usage:
     uvicorn api_server:app --reload --port 8000

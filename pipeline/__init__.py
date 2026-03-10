@@ -1,7 +1,7 @@
 """Biotech Disclosure Pipeline — public API re-exports.
 
-Replaces the notebook ``exec()`` pattern with direct Python imports.
-Every symbol previously available via ``NOTEBOOK_EXPORTS`` is re-exported here.
+Uses direct Python imports and package exports for runtime orchestration.
+Every public symbol required by API/CLI entrypoints is re-exported here.
 """
 from pipeline.config import GLOBAL_CONFIG, PIPELINE_CONFIG, logger
 from pipeline.enums import (
