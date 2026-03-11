@@ -311,10 +311,15 @@ def save_chunks_to_lancedb(
     table_name = "document_chunks"
     existing_tables = lance_db.table_names()
     if table_name in existing_tables:
-        table = lance_db.open_table(table_name)
-        # Delete existing chunks for this document before re-inserting
-        table.delete(f'document_id = "{document_id}"')
-        table.add(records)
+        try:
+            table = lance_db.open_table(table_name)
+            # Delete existing chunks for this document before re-inserting
+            table.delete(f'document_id = "{document_id}"')
+            table.add(records)
+        except Exception:
+            # Schema mismatch — drop and recreate
+            lance_db.drop_table(table_name)
+            lance_db.create_table(table_name, records)
     else:
         lance_db.create_table(table_name, records)
 
