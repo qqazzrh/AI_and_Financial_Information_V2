@@ -64,9 +64,9 @@ else:
             "enable_langgraph": False,
         },
         "future_model_config": {
-            "worker_model_name": "configurable_placeholder",
-            "arbiter_model_name": "configurable_placeholder",
-            "embedding_model_name": "configurable_placeholder",
+            "worker_model_name": "moonshot-v1-128k",
+            "arbiter_model_name": "moonshot-v1-128k",
+            "embedding_model_name": "voyage-3-large",
         },
         "future_source_adapters": {},
     }
